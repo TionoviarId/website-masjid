@@ -10,10 +10,15 @@ import {
   addDoc,
   getDocs,
   deleteDoc,
-  doc
+  doc,
+  query,
+  where
 } from 'firebase/firestore';
+import {
+  getAuth,
+  onAuthStateChanged
+} from 'firebase/auth';
 
-// ✅ Firebase config
 const firebaseConfig: FirebaseOptions = {
   apiKey: 'AIzaSyCurarGPJ7bJH7XUQn6_VzIu0ITEn5SgkE',
   authDomain: 'website-masjid-16e5b.firebaseapp.com',
@@ -26,7 +31,9 @@ const firebaseConfig: FirebaseOptions = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
+// Types
 type PrayerSchedule = {
   id: string;
   tanggal: string;
@@ -45,265 +52,195 @@ type ImamSchedule = {
 };
 
 function Page() {
+  const [role, setRole] = useState<string | null>(null);
   const [prayerSchedules, setPrayerSchedules] = useState<PrayerSchedule[]>([]);
   const [prayerForm, setPrayerForm] = useState<Omit<PrayerSchedule, 'id'>>({
-    tanggal: '',
-    subuh: '',
-    dzuhur: '',
-    ashar: '',
-    maghrib: '',
-    isya: '',
+    tanggal: '', subuh: '', dzuhur: '', ashar: '', maghrib: '', isya: ''
+  });
+  const [imamSchedules, setImamSchedules] = useState<ImamSchedule[]>([]);
+  const [imamForm, setImamForm] = useState<Omit<ImamSchedule, 'id'>>({
+    tanggal: '', imam: '', penceramah: ''
   });
   const [loading, setLoading] = useState(false);
+  const [loading1, setLoading1] = useState(false);
 
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userSnapshot = await getDocs(query(collection(db, 'users'), where('uid', '==', user.uid)));
+        if (!userSnapshot.empty) {
+          const userData = userSnapshot.docs[0].data();
+          setRole(userData.role);
+        }
+      } else {
+        alert('Kamu belum login!');
+      }
+    });
+
     loadPrayerSchedules();
     loadImamSchedules();
+
+    return () => unsubscribe();
   }, []);
 
   async function loadPrayerSchedules() {
-    try {
-      const snapshot = await getDocs(collection(db, 'prayerSchedules'));
-      const schedules = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...(docSnap.data() as Omit<PrayerSchedule, 'id'>),
-      }));
-      setPrayerSchedules(schedules);
-    } catch (error) {
-      console.error('Error loading prayer schedules:', error);
-      alert('Gagal mengambil jadwal shalat');
-    }
+    const snapshot = await getDocs(collection(db, 'prayerSchedules'));
+    const schedules = snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...(docSnap.data() as Omit<PrayerSchedule, 'id'>)
+    }));
+    setPrayerSchedules(schedules);
   }
 
   async function addPrayerSchedule() {
-    const { tanggal, subuh, dzuhur, ashar, maghrib, isya } = prayerForm;
-    if (!tanggal || !subuh || !dzuhur || !ashar || !maghrib || !isya) {
-      alert('Mohon isi semua field');
-      return;
+    if (Object.values(prayerForm).some(val => !val)) {
+      alert('Isi semua field!'); return;
     }
-
     setLoading(true);
-    try {
-      const docRef = await addDoc(collection(db, 'prayerSchedules'), prayerForm);
-      setPrayerSchedules((prev) => [...prev, { id: docRef.id, ...prayerForm }]);
-      setPrayerForm({
-        tanggal: '',
-        subuh: '',
-        dzuhur: '',
-        ashar: '',
-        maghrib: '',
-        isya: '',
-      });
-      alert('Jadwal shalat berhasil ditambahkan!');
-    } catch (error) {
-      console.error('Error adding prayer schedule:', error);
-      alert('Gagal menambahkan jadwal');
-    }
+    const docRef = await addDoc(collection(db, 'prayerSchedules'), prayerForm);
+    setPrayerSchedules(prev => [...prev, { id: docRef.id, ...prayerForm }]);
+    setPrayerForm({ tanggal: '', subuh: '', dzuhur: '', ashar: '', maghrib: '', isya: '' });
     setLoading(false);
   }
 
   async function deletePrayerSchedule(id: string) {
-    if (!confirm('Yakin ingin menghapus jadwal ini?')) return;
+    if (!confirm('Hapus jadwal?')) return;
     setLoading(true);
-    try {
-      await deleteDoc(doc(db, 'prayerSchedules', id));
-      setPrayerSchedules((prev) => prev.filter((x) => x.id !== id));
-      alert('Jadwal berhasil dihapus!');
-    } catch (error) {
-      console.error('Error deleting prayer schedule:', error);
-      alert('Gagal menghapus jadwal');
-    }
+    await deleteDoc(doc(db, 'prayerSchedules', id));
+    setPrayerSchedules(prev => prev.filter(x => x.id !== id));
     setLoading(false);
   }
 
-  const [imamSchedules, setImamSchedules] = useState<ImamSchedule[]>([]);
-  const [imamForm, setImamForm] = useState<Omit<ImamSchedule, 'id'>>({
-    tanggal: '',
-    imam: '',
-    penceramah: ''
-  });
-  const [loading1, setLoading1] = useState(false);
-
   async function loadImamSchedules() {
-    try {
-      const snapshot = await getDocs(collection(db, 'imamSchedules'));
-      const schedules = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...(docSnap.data() as Omit<ImamSchedule, 'id'>),
-      }));
-      setImamSchedules(schedules);
-    } catch (error) {
-      console.error('Error loading Imam schedules:', error);
-      alert('Gagal mengambil jadwal imam');
-    }
+    const snapshot = await getDocs(collection(db, 'imamSchedules'));
+    const schedules = snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...(docSnap.data() as Omit<ImamSchedule, 'id'>)
+    }));
+    setImamSchedules(schedules);
   }
 
   async function addImamSchedule() {
-    const { tanggal, imam, penceramah } = imamForm;
-    if (!tanggal || !imam || !penceramah) {
-      alert('Mohon isi semua field');
-      return;
+    if (Object.values(imamForm).some(val => !val)) {
+      alert('Isi semua field!'); return;
     }
-
     setLoading1(true);
-    try {
-      const docRef = await addDoc(collection(db, 'imamSchedules'), imamForm);
-      setImamSchedules((prev) => [...prev, { id: docRef.id, ...imamForm }]);
-      setImamForm({
-        tanggal: '',
-        imam: '',
-        penceramah: ''
-      });
-      alert('Jadwal imam berhasil ditambahkan!');
-    } catch (error) {
-      console.error('Error adding imam schedule:', error);
-      alert('Gagal menambahkan jadwal imam');
-    }
+    const docRef = await addDoc(collection(db, 'imamSchedules'), imamForm);
+    setImamSchedules(prev => [...prev, { id: docRef.id, ...imamForm }]);
+    setImamForm({ tanggal: '', imam: '', penceramah: '' });
     setLoading1(false);
   }
 
   async function deleteImamSchedule(id: string) {
-    if (!confirm('Yakin ingin menghapus jadwal ini?')) return;
+    if (!confirm('Hapus jadwal?')) return;
     setLoading1(true);
-    try {
-      await deleteDoc(doc(db, 'imamSchedules', id));
-      setImamSchedules((prev) => prev.filter((x) => x.id !== id));
-      alert('Jadwal berhasil dihapus!');
-    } catch (error) {
-      console.error('Error deleting imam schedule:', error);
-      alert('Gagal menghapus jadwal');
-    }
+    await deleteDoc(doc(db, 'imamSchedules', id));
+    setImamSchedules(prev => prev.filter(x => x.id !== id));
     setLoading1(false);
   }
 
   return (
-    <div className="w-full bg-gradient-to-br from-teal-400 to-blue-500 flex justify-center min-h-screen items-start p-4">
-      <div className="bg-white/90 backdrop-blur-sm w-full flex flex-col items-center max-w-4xl rounded-3xl py-10 shadow-2xl">
-        {/* Form Jadwal Shalat */}
-        <h2 className="text-3xl text-teal-700 font-bold mb-4">📖 Tambah Jadwal Shalat</h2>
-        <div className="flex flex-col w-11/12 gap-3 mb-6">
-          {(['tanggal', 'subuh', 'dzuhur', 'ashar', 'maghrib', 'isya'] as const).map((field) => (
-            <input
-              key={field}
-              type="text"
-              placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-              value={prayerForm[field]}
-              onChange={(e) => setPrayerForm((prev) => ({ ...prev, [field]: e.target.value }))}
-              className="p-3 border border-gray-300 rounded-lg placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+    <div className="min-h-screen w-full bg-gradient-to-br from-teal-400 to-blue-500 flex justify-center p-4">
+      <div className="bg-white/90 backdrop-blur-sm max-w-4xl w-full rounded-3xl py-10 px-6 shadow-2xl">
+        {role === 'admin' && (
+            <div>
+                <h2 className="text-3xl text-teal-700 font-bold mb-4">📖 Tambah Jadwal Shalat</h2>
+
+          <div className="flex flex-col gap-3 mb-6">
+            {(['tanggal', 'subuh', 'dzuhur', 'ashar', 'maghrib', 'isya'] as const).map((field) => (
+              <input
+                key={field}
+                type="text"
+                placeholder={field}
+                value={prayerForm[field]}
+                onChange={(e) => setPrayerForm(prev => ({ ...prev, [field]: e.target.value }))}
+                className="p-3 border text-gray-700 border-gray-300 rounded"
+              />
+            ))}
+            <button
+              onClick={addPrayerSchedule}
+              className="bg-teal-700 text-white px-4 py-2 rounded"
               disabled={loading}
-            />
-          ))}
-        </div>
-        <button
-          onClick={addPrayerSchedule}
-          disabled={loading}
-          className="bg-teal-700 text-white font-bold px-6 py-2 rounded-lg hover:bg-teal-800 disabled:opacity-50"
-        >
-          {loading ? 'Menambahkan...' : 'Tambah Jadwal'}
-        </button>
-
-        {/* Tabel Jadwal Shalat */}
-        <h2 className="text-3xl text-teal-700 font-bold mt-10 mb-4">📋 Daftar Jadwal</h2>
-        {prayerSchedules.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">Belum ada jadwal shalat.</p>
-        ) : (
-          <div className="overflow-auto w-11/12 max-h-96">
-            <table className="w-full table-auto border-collapse">
-              <thead>
-                <tr className="bg-teal-700 text-white">
-                  <th className="p-2">Tanggal</th>
-                  <th className="p-2">Subuh</th>
-                  <th className="p-2">Dzuhur</th>
-                  <th className="p-2">Ashar</th>
-                  <th className="p-2">Maghrib</th>
-                  <th className="p-2">Isya</th>
-                  <th className="p-2">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {prayerSchedules.map((sched) => (
-                  <tr key={sched.id} className="text-center border-b text-gray-700">
-                    <td className="p-2">{sched.tanggal}</td>
-                    <td className="p-2">{sched.subuh}</td>
-                    <td className="p-2">{sched.dzuhur}</td>
-                    <td className="p-2">{sched.ashar}</td>
-                    <td className="p-2">{sched.maghrib}</td>
-                    <td className="p-2">{sched.isya}</td>
-                    <td className="p-2">
-                      <button
-                        onClick={() => deletePrayerSchedule(sched.id)}
-                        disabled={loading}
-                        className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 disabled:opacity-50"
-                      >
-                        Hapus
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            >{loading ? 'Menambahkan...' : 'Tambah Jadwal'}</button>
           </div>
+            </div>
         )}
 
-        {/* Form Jadwal Imam */}
-        <h2 className="mt-10 text-3xl text-teal-700 font-bold mb-4">🌙 Jadwal Imam Tarawih dan Penceramah</h2>
-        <div className="flex flex-col w-11/12 gap-3 mb-6">
-          {(['tanggal', 'imam', 'penceramah'] as const).map((field) => (
-            <input
-              key={field}
-              type="text"
-              placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-              value={imamForm[field]}
-              onChange={(e) => setImamForm((prev) => ({ ...prev, [field]: e.target.value }))}
-              className="p-3 border border-gray-300 rounded-lg text-gray-700 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+        <h2 className="text-3xl text-teal-700 font-bold mb-2">📋 Daftar Jadwal Shalat</h2>
+        <table className="w-full table-auto">
+          <thead>
+            <tr className="bg-teal-700 text-white">
+              <th className="p-2">Tanggal</th>
+              <th>Subuh</th><th>Dzuhur</th><th>Ashar</th><th>Maghrib</th><th>Isya</th>
+              {role === 'admin' && <th>Aksi</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {prayerSchedules.map(s => (
+              <tr key={s.id} className="text-center text-gray-700 pt-2 ">
+                <td className='mb-2'>{s.tanggal}</td><td className='mb-2'>{s.subuh}</td><td className='mb-2'>{s.dzuhur}</td><td className='mb-2'>{s.ashar}</td><td className='mb-2'>{s.maghrib}</td><td className='mb-2'>{s.isya}</td>
+                {role === 'admin' && (
+                  <td className='mb-2'>
+                    <button
+                      onClick={() => deletePrayerSchedule(s.id)}
+                      className="bg-red-600 text-white px-2 py-1 rounded"
+                    >Hapus</button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {role === 'admin' && (
+            <div>
+                <h2 className="text-3xl text-teal-700 font-bold mt-10 mb-4">🌙 Jadwal Imam Tarawih</h2>
+
+          <div className="flex flex-col gap-3 mb-6">
+            {(['tanggal', 'imam', 'penceramah'] as const).map((field) => (
+              <input
+                key={field}
+                type="text"
+                placeholder={field}
+                value={imamForm[field]}
+                onChange={(e) => setImamForm(prev => ({ ...prev, [field]: e.target.value }))}
+                className="p-3 border text-gray-700 border-gray-300 rounded"
+              />
+            ))}
+            <button
+              onClick={addImamSchedule}
+              className="bg-teal-700 text-white px-4 py-2 rounded"
               disabled={loading1}
-            />
-          ))}
-        </div>
-        <button
-          onClick={addImamSchedule}
-          disabled={loading1}
-          className="bg-teal-700 text-white font-bold px-6 py-2 rounded-lg hover:bg-teal-800 disabled:opacity-50"
-        >
-          {loading1 ? 'Menambahkan...' : 'Tambah Jadwal'}
-        </button>
-
-        {/* Tabel Jadwal Imam */}
-        <h2 className="text-3xl text-teal-700 font-bold mt-10 mb-4">📋 Daftar Jadwal</h2>
-        {imamSchedules.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">Belum ada jadwal shalat.</p>
-        ) : (
-          <div className="overflow-auto w-11/12 max-h-96">
-            <table className="w-full table-auto border-collapse">
-              <thead>
-                <tr className="bg-teal-700 text-white">
-                  <th className="p-2">Tanggal</th>
-                  <th className="p-2">Imam</th>
-                  <th className="p-2">Penceramah</th>
-                  <th className="p-2">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {imamSchedules.map((sched) => (
-                  <tr key={sched.id} className="text-center border-b text-gray-700">
-                    <td className="p-2">{sched.tanggal}</td>
-                    <td className="p-2">{sched.imam}</td>
-                    <td className="p-2">{sched.penceramah}</td>
-                    <td className="p-2">
-                      <button
-                        onClick={() => deleteImamSchedule(sched.id)}
-                        disabled={loading1}
-                        className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 disabled:opacity-50"
-                      >
-                        Hapus
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            >{loading1 ? 'Menambahkan...' : 'Tambah Jadwal'}</button>
           </div>
+            </div>
         )}
+
+        <h2 className="text-3xl text-teal-700 font-bold mb-2">📋 Daftar Jadwal Imam</h2>
+        <table className="w-full table-auto">
+          <thead>
+            <tr className="bg-teal-700 text-white">
+              <th className="p-2">Tanggal</th>
+              <th>Imam</th><th>Penceramah</th>
+              {role === 'admin' && <th>Aksi</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {imamSchedules.map(s => (
+              <tr key={s.id} className="text-center text-gray-700 mt-2">
+                <td className='mb-2'>{s.tanggal}</td><td className='mb-2'>{s.imam}</td><td className='mb-2'>{s.penceramah}</td>
+                {role === 'admin' && (
+                  <td className='mb-2'>
+                    <button
+                      onClick={() => deleteImamSchedule(s.id)}
+                      className="bg-red-600 text-white px-2 py-1 rounded"
+                    >Hapus</button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

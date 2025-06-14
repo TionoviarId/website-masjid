@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "../components/sidebar";
+// import Header from "@/components/header";
+// import { AuthProvider } from "../context/AuthContext"; // ⬅️ ini
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,10 +28,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-         <Sidebar/>
-        {children}
+        {/* <AuthProvider> {/* ⬅️ Tambahkan di sini */}
+          {/* <Header />  */}
+          <div className="flex">
+            <Sidebar />
+            {children}
+          </div>
+        {/* </AuthProvider> */}
       </body>
     </html>
   );

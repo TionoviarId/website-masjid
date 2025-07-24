@@ -1,6 +1,22 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { getApp, getApps, initializeApp } from 'firebase/app'
+import { useRouter } from 'next/navigation'
+
+// Firebase Config
+const firebaseConfig = {
+  apiKey: 'AIzaSyCurarGPJ7bJH7XUQn6_VzIu0ITEn5SgkE',
+  authDomain: 'website-masjid-16e5b.firebaseapp.com',
+  projectId: 'website-masjid-16e5b',
+  storageBucket: 'website-masjid-16e5b.appspot.com',
+  messagingSenderId: '713268684394',
+  appId: '1:713268684394:web:b90ccf8401f68deff54c13',
+}
+
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const auth = getAuth(app)
 
 const texts = [
   "Jangan lupa sahur ya!",
@@ -12,11 +28,22 @@ const texts = [
 
 function Page() {
   const [index, setIndex] = useState(0)
+  const router = useRouter()
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push('/login')
+      }
+    })
+
+    return () => unsubscribe()
+  }, [router])
 
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % texts.length)
-    }, 10000) // ganti setiap 10 detik
+    }, 10000)
 
     return () => clearInterval(interval)
   }, [])
@@ -28,35 +55,35 @@ function Page() {
           Selamat Datang di Dashboard Ramadhan
         </p>
         <p className='text-2xl text-teal-700 my-10 text-center font-bold bg-white'>
-         {texts[index]}
+          {texts[index]}
         </p>
         <div className='flex flex-col gap-5'>
 
-        <div className='w-11/12 rounded-3xl mx-auto bg-[#9ACBD0] flex flex-col justify-center '>
-          <p className='text-2xl font-bold text-teal-700 pt-2 px-5'>Agenda Ramadhan</p>
-          <p className='text-black text-xl font-semibold transition-all duration-500 pb-5 px-5'>
-            Di sini Anda dapat melihat jadwal Imam Tarawih, ceramah, dan kegiatan penting lainnya selama Ramadhan.
-          </p>
-        </div>
-        <div className='w-11/12 rounded-3xl mx-auto bg-[#9ACBD0] flex flex-col justify-center '>
-          <p className='text-2xl font-bold text-teal-700 pt-2 px-5'>To Do List</p>
-          <p className='text-black text-xl font-semibold transition-all duration-500 pb-5 px-5'>
-           Atur dan sesuaikan tujuan Ramadhan Anda dengan daftar tugas yang akan membantu Anda menjaga fokus dan berkah selama bulan suci ini.
-          </p>
-        </div>
-        <div className='w-11/12 rounded-3xl mx-auto bg-[#9ACBD0] flex flex-col justify-center '>
-          <p className='text-2xl font-bold text-teal-700 pt-2 px-5'>To Do List</p>
-          <p className='text-black text-xl font-semibold transition-all duration-500 pb-5 px-5'>
-           Atur dan sesuaikan tujuan Ramadhan Anda dengan daftar tugas yang akan membantu Anda menjaga fokus dan berkah selama bulan suci ini.
-          </p>
-        </div>
-        <div className='w-11/12 rounded-3xl mx-auto bg-[#9ACBD0] flex flex-col justify-center '>
-          <p className='text-2xl font-bold text-teal-700 pt-2 px-5'>Countdown Berbuka</p>
-          <p className='text-black text-xl font-semibold transition-all duration-500 pb-5 px-5'>
-          Hitung mundur menuju waktu berbuka.
-          </p>
-        </div>
-       
+          <div className='w-11/12 rounded-3xl mx-auto bg-[#9ACBD0] flex flex-col justify-center '>
+            <p className='text-2xl font-bold text-teal-700 pt-2 px-5'>Agenda Ramadhan</p>
+            <p className='text-black text-xl font-semibold transition-all duration-500 pb-5 px-5'>
+              Di sini Anda dapat melihat jadwal Imam Tarawih, ceramah, dan kegiatan penting lainnya selama Ramadhan.
+            </p>
+          </div>
+          <div className='w-11/12 rounded-3xl mx-auto bg-[#9ACBD0] flex flex-col justify-center '>
+            <p className='text-2xl font-bold text-teal-700 pt-2 px-5'>To Do List</p>
+            <p className='text-black text-xl font-semibold transition-all duration-500 pb-5 px-5'>
+              Atur dan sesuaikan tujuan Ramadhan Anda dengan daftar tugas yang akan membantu Anda menjaga fokus dan berkah selama bulan suci ini.
+            </p>
+          </div>
+          <div className='w-11/12 rounded-3xl mx-auto bg-[#9ACBD0] flex flex-col justify-center '>
+            <p className='text-2xl font-bold text-teal-700 pt-2 px-5'>To Do List</p>
+            <p className='text-black text-xl font-semibold transition-all duration-500 pb-5 px-5'>
+              Atur dan sesuaikan tujuan Ramadhan Anda dengan daftar tugas yang akan membantu Anda menjaga fokus dan berkah selama bulan suci ini.
+            </p>
+          </div>
+          <div className='w-11/12 rounded-3xl mx-auto bg-[#9ACBD0] flex flex-col justify-center '>
+            <p className='text-2xl font-bold text-teal-700 pt-2 px-5'>Countdown Berbuka</p>
+            <p className='text-black text-xl font-semibold transition-all duration-500 pb-5 px-5'>
+              Hitung mundur menuju waktu berbuka.
+            </p>
+          </div>
+
         </div>
       </div>
     </div>

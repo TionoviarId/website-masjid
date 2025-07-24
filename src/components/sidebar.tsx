@@ -1,41 +1,50 @@
-import { Home, User, Settings, Folder, Info } from "lucide-react";
+'use client'
+
+import { Home, User, Settings, Folder, Info } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { signOut } from "firebase/auth"
+import { auth } from "../../lib/firebase"
 
 const Sidebar = () => {
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth)
+      console.log("Logout berhasil")
+      router.push("/login")
+    } catch (err) {
+      console.error("Logout error:", err)
+    }
+  }
+
   return (
     <div className="flex min-h-screen w-64 bg-[#006A71] text-white flex flex-col shadow-lg">
-      <div className="p-6 text-2xl font-bold   border-gray-700">
-        Agenda Ramadhan
-      </div>
+      <div className="p-6 text-2xl font-bold border-gray-700">Agenda Ramadhan</div>
       <nav className="flex-1 p-4">
         <div className="space-y-4">
-          <a href="http://localhost:3000/" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded cursor-pointer">
-            <Home size={20} />
-            
-            <span>Home</span>
-            
+          <a href="/" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
+            <Home size={20} /><span>Home</span>
           </a>
-          <li className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded cursor-pointer">
-            <User size={20} />
-            <a href="agenda">Agenda Imam dan Ceramah</a>
-            <span></span>
-          </li>
-          <a href="countdown" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded cursor-pointer">
-            <Folder size={20} />
-
-            <span>Contdown Berbuka</span>
+          <a href="/agenda" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
+            <User size={20} /><span>Agenda Imam dan Ceramah</span>
           </a>
-          <a href="ramadhan_goals" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded cursor-pointer">
-            <Settings size={20} />
-            <span>Ramadhan Goals</span>
+          <a href="/countdown" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
+            <Folder size={20} /><span>Countdown Berbuka</span>
           </a>
-          <li className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded cursor-pointer">
-            <Info size={20} />
-            <span>Logout</span>
-          </li>
+          <a href="/ramadhan_goals" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
+            <Settings size={20} /><span>Ramadhan Goals</span>
+          </a>
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded w-full text-left"
+          >
+            <Info size={20} /><span>Logout</span>
+          </button>
         </div>
       </nav>
     </div>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

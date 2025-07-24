@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   initializeApp,
-  FirebaseOptions
+  FirebaseOptions,
+  getApp,
+  getApps
 } from 'firebase/app';
 import {
   getFirestore,
@@ -29,7 +31,7 @@ const firebaseConfig: FirebaseOptions = {
   measurementId: 'G-XX2P2XT005',
 };
 
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 const auth = getAuth(app);
 

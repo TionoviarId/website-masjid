@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import {
   initializeApp,
-  FirebaseOptions
+  FirebaseOptions,
+  getApp,
+  getApps
 } from 'firebase/app';
 import {
   getAuth,
@@ -29,7 +31,7 @@ const firebaseConfig: FirebaseOptions = {
 };
 
 // Init Firebase
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -61,10 +63,11 @@ function RegisterPage() {
       setPassword('');
       setRole('admin');
       router.push('/');
-    } catch (error: any) {
-      console.error('Gagal daftar:', error);
-      alert(`Gagal daftar: ${error.message}`);
-    }
+    } catch (error) {
+  console.error('Gagal daftar:', error);
+  const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
+  alert(`Gagal daftar: ${errorMessage}`);
+}
     setLoading(false);
   };
    const router = useRouter();

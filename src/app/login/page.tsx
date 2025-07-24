@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { app } from '../../../lib/firebase'; // pastikan ini benar
-import { getApp } from 'firebase/app';
+
 
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -38,9 +38,9 @@ function LoginPage() {
 
       // Redirect ke dashboard
       router.push('/');
-    } catch (error: any) {
-      console.error('Gagal login:', error);
-      alert(`Login gagal: ${error.message}`);
+    } catch (error) {
+       const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
+      alert(`Login gagal: ${errorMessage}`);
     }
 
     setLoading(false);

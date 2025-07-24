@@ -4,6 +4,7 @@ import { Home, User, Settings, Folder, Info } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { signOut } from "firebase/auth"
 import { auth } from "../../lib/firebase"
+import Link from "next/link"
 
 const Sidebar = () => {
   const router = useRouter()
@@ -23,18 +24,18 @@ const Sidebar = () => {
       <div className="p-6 text-2xl font-bold border-gray-700">Agenda Ramadhan</div>
       <nav className="flex-1 p-4">
         <div className="space-y-4">
-          <a href="/" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
+          <Link href="/" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
             <Home size={20} /><span>Home</span>
-          </a>
-          <a href="/agenda" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
+          </Link>
+          <Link href="/agenda" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
             <User size={20} /><span>Agenda Imam dan Ceramah</span>
-          </a>
-          <a href="/countdown" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
+          </Link>
+          <Link href="/countdown" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
             <Folder size={20} /><span>Countdown Berbuka</span>
-          </a>
-          <a href="/ramadhan_goals" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
+          </Link>
+          <Link href="/ramadhan_goals" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
             <Settings size={20} /><span>Ramadhan Goals</span>
-          </a>
+          </Link>
           <button
             onClick={handleLogout}
             className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded w-full text-left"

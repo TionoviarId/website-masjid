@@ -168,7 +168,7 @@ function Page() {
         {/* Header */}
         <div className="text-center mb-6">
           <p className="text-2xl text-teal-700 font-extrabold mb-2">
-            🎯 Ramadhan Goals: Catatan Amal & Aktivitas
+            🎯 Ramadhan Goals Masjid
           </p>
           <div className="bg-teal-50 rounded-lg p-3 mb-4">
             <p className="text-sm text-teal-700">
@@ -208,7 +208,7 @@ function Page() {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             className="p-3 flex-1 border text-gray-700 border-gray-300 rounded-lg placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-            placeholder="Contoh: Tadarus 1 juz, Sholat Dhuha, Sedekah harian..."
+            placeholder="Contoh: Pengajian Jumat, sedekah Fakir Miskin..."
             disabled={loading}
           />
           <button
@@ -262,6 +262,7 @@ function Page() {
                   <span className="text-xs text-gray-400">
                     {goal.createdAt.toLocaleDateString('id-ID')}
                   </span>
+                 
                   <button
                     onClick={() => deleteGoal(goal.id)}
                     className="text-red-400 hover:text-red-600 transition-colors duration-200 p-1"
@@ -269,6 +270,8 @@ function Page() {
                   >
                     🗑️
                   </button>
+
+                
                 </div>
               </div>
             ))

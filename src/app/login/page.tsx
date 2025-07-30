@@ -37,7 +37,7 @@ function LoginPage() {
       alert(`Login berhasil sebagai ${userData.role}!`);
 
       // Redirect ke dashboard
-      router.push('/');
+      router.push('/dashboard');
     } catch (error) {
        const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
       alert(`Login gagal: ${errorMessage}`);
@@ -47,7 +47,10 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex w-full text-gray-700 justify-center items-center min-h-screen bg-gradient-to-br from-blue-400 to-teal-500">
+    <div className="flex flex-col w-full text-gray-700 justify-center items-center min-h-screen bg-gradient-to-br from-blue-400 to-teal-500" style={{
+        backgroundImage: "url('/masjid-solo.jpg')"
+      }}>
+        <h2 className="text-3xl font-bold text-white mb-6 text-center">Selamat Datang di Website Masjid Khalid bin Walid</h2>
       <form
         onSubmit={handleLogin}
         className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm"

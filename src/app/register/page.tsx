@@ -62,7 +62,7 @@ function RegisterPage() {
       setEmail('');
       setPassword('');
       setRole('admin');
-      router.push('/');
+      router.push('/login');
     } catch (error) {
   console.error('Gagal daftar:', error);
   const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
@@ -73,7 +73,10 @@ function RegisterPage() {
    const router = useRouter();
 
   return (
-    <div className="flex justify-center w-full text-gray-700 items-center min-h-screen bg-gradient-to-br from-teal-400 to-blue-500">
+    <div className="flex flex-col justify-center w-full text-gray-700 items-center min-h-screen bg-gradient-to-br from-teal-400 to-blue-500" style={{
+        backgroundImage: "url('/masjid-solo.jpg')"
+      }}>
+         <h2 className="text-3xl font-bold text-white mb-6 text-center">Selamat Datang di Website Masjid Khalid bin Walid</h2>
       <form
         onSubmit={handleRegister}
         className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm"
@@ -113,6 +116,7 @@ function RegisterPage() {
           <option value="admin">Admin</option>
          
           <option value="yayasan">Yayasan</option>
+           
         </select>
 
         <button

@@ -55,7 +55,7 @@ const Sidebar = () => {
 
       {/* Modal konfirmasi logout */}
       {showConfirmLogout && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[#006A71] bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-md p-6 w-80 text-black">
             <p className="text-lg font-semibold mb-4">Yakin mau logout?</p>
             <div className="flex justify-end space-x-3">

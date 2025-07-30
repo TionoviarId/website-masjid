@@ -62,7 +62,7 @@ function RegisterPage() {
       setEmail('');
       setPassword('');
       setRole('admin');
-      router.push('/login');
+      router.push('/dashboard');
     } catch (error) {
   console.error('Gagal daftar:', error);
   const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
@@ -116,6 +116,8 @@ function RegisterPage() {
           <option value="admin">Admin</option>
          
           <option value="yayasan">Yayasan</option>
+
+          
            
         </select>
 

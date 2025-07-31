@@ -34,6 +34,9 @@ const Sidebar = () => {
             <Link href="/dashboard" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
               <Home size={20} /><span>Home</span>
             </Link>
+            <Link href="/datadiri" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
+              <Home size={20} /><span>Data diri</span>
+            </Link>
             <Link href="/agenda" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
               <User size={20} /><span>Agenda Imam dan Ceramah</span>
             </Link>
@@ -42,6 +45,9 @@ const Sidebar = () => {
             </Link>
             <Link href="/ramadhan_goals" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
               <Settings size={20} /><span>Ramadhan Goals</span>
+            </Link>
+            <Link href="/buku" className="flex items-center space-x-3 bg-[#48A6A7] hover:bg-gray-700 px-4 py-2 rounded">
+              <Settings size={20} /><span>Buku</span>
             </Link>
             <button
               onClick={() => setShowConfirmLogout(true)}

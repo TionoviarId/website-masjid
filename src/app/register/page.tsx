@@ -16,10 +16,9 @@ import {
   collection,
   addDoc
 } from 'firebase/firestore';
-
 import { useRouter } from 'next/navigation';
 
-// Firebase config
+// 🔧 Konfigurasi Firebase
 const firebaseConfig: FirebaseOptions = {
   apiKey: 'AIzaSyCurarGPJ7bJH7XUQn6_VzIu0ITEn5SgkE',
   authDomain: 'website-masjid-16e5b.firebaseapp.com',
@@ -30,26 +29,30 @@ const firebaseConfig: FirebaseOptions = {
   measurementId: 'G-XX2P2XT005',
 };
 
-// Init Firebase
+// 🔌 Inisialisasi Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 function RegisterPage() {
+  const router = useRouter();
+
   const [nama, setNama] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('admin');
   const [loading, setLoading] = useState(false);
 
+  // 🔐 Fungsi untuk handle registrasi
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Simpan ke Firestore
+      // Simpan data user + role ke Firestore
       await addDoc(collection(db, 'users'), {
         uid: user.uid,
         nama,
@@ -57,26 +60,23 @@ function RegisterPage() {
         role
       });
 
-      alert('Registrasi berhasil!');
+      alert('✅ Registrasi berhasil!');
       setNama('');
       setEmail('');
       setPassword('');
       setRole('admin');
-      router.push('/dashboard');
+      router.push('/');
     } catch (error) {
-  console.error('Gagal daftar:', error);
-  const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
-  alert(`Gagal daftar: ${errorMessage}`);
-}
+      console.error('❌ Gagal daftar:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
+      alert(`Gagal daftar: ${errorMessage}`);
+    }
+
     setLoading(false);
   };
-   const router = useRouter();
 
   return (
-    <div className="flex flex-col justify-center w-full text-gray-700 items-center min-h-screen bg-gradient-to-br from-teal-400 to-blue-500" style={{
-        backgroundImage: "url('/masjid-solo.jpg')"
-      }}>
-         <h2 className="text-3xl font-bold text-white mb-6 text-center">Selamat Datang di Website Masjid Khalid bin Walid</h2>
+    <div className="flex justify-center w-full text-gray-700 items-center min-h-screen bg-gradient-to-br from-teal-400 to-blue-500">
       <form
         onSubmit={handleRegister}
         className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm"
@@ -114,11 +114,8 @@ function RegisterPage() {
           className="w-full mb-6 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
         >
           <option value="admin">Admin</option>
-         
           <option value="yayasan">Yayasan</option>
-
-          
-           
+          <option value="unp">UNP</option> {/* ✅ Tambahkan role UNP di sini */}
         </select>
 
         <button
